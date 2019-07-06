@@ -2,28 +2,34 @@ package bitmap
 
 import "encoding/binary"
 
+// MinNodes represents the minimum block of cells
+// that we need to compute the next step.
+//
+// It is a 4x4 square of bits. For example:
 // o 1 o o
 // 1 1 o o
 // o 1 o 1
 // 1 o o o
-// TODO describe
+//
 type MinNodes uint16
 
+// NewMinNodes creates a MinNodes pointer
 func NewMinNodes(u uint16) *MinNodes{
 	mn := MinNodes(u)
 	return &mn
 }
 
-// Sets the bit at pos in the integer n.
+// Sets the bit at pos in MinNodes
 func (mn *MinNodes) SetBit(pos uint) {
 	*mn |= 1 << pos
 }
 
-// same but for single byte
+// Similar to SetBit but for a single byte
 func setBit(b byte, pos uint) {
 	b |= 1 << pos
 }
-// Clears the bit at pos in n.
+
+// Clears the bit at pos in MinNodes
 func (mn *MinNodes) UnSetBit(pos uint) {
 	*mn |= ^(1 << pos)
 }
@@ -38,15 +44,17 @@ func (mn *MinNodes) GetBit(pos uint) bool {
 // o b c d -->  b c d o
 // o o e o      o e o o
 // 0 o o o      o o o o
-// TODO test a lot
+// TODO describe what's crossPos
 func (mn *MinNodes) MoveTopLeft(crossPos uint) MinNodes {
 	switch crossPos {
+	case 0:
+		crossPos = 0
 	case 1:
 		crossPos = 1
 	case 2:
-		crossPos = 3
-	case 3:
 		crossPos = 4
+	case 3:
+		crossPos = 5
 	default:
 		panic("crosspos invalid")
 	}
@@ -66,6 +74,7 @@ func (mn *MinNodes) ApplyGoFRule() byte {
 }
 
 // TODO: describe
+// TODO: test
 func (mn MinNodes) ApplyGoFRuleToTopLeft() bool {
 	surroundingCoordinates := []MinCoordinate {
 		{1, 0},
@@ -150,10 +159,8 @@ func posToCoord(pos uint) MinCoordinate {
 //   each line is build this way:
 //   0000 aaaa + 0000 bbbb --> a a b b  (i.e. aabb aabb)
 //                             a a b b
-//
 // - then we aggregate the 2 lines to a MinNodes
 //
-// TODO: test test test
 func Aggregate(r []byte) *MinNodes {
 	l1 := ((r[0] & 12) << 4) | ((r[0] & 3) << 2) | ((r[1] & 12) << 2) | (r[1] & 3)
 	l2 := ((r[2] & 12) << 4) | ((r[2] & 3) << 2) | ((r[3] & 12) << 2) | (r[3] & 3)

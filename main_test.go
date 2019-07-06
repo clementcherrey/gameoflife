@@ -15,6 +15,7 @@ func TestSetBit(t *testing.T) {
 	}
 }
 
+// TODO: what are we measuring here?
 func BenchmarkMinNodes_SetBit(b *testing.B) {
 	mn := NewMinNodes(253)
 	b.ResetTimer()
@@ -29,7 +30,31 @@ func BenchmarkMinNodes_SetBit(b *testing.B) {
 	}
 }
 
-func TestDummy(t *testing.T) {
-	m := 18 << 1
-	fmt.Println(m)
+func TestMinNodes_MoveTopLeft(t *testing.T) {
+	testCases := []struct{
+		mn 		*MinNodes // initial MinNode
+		move 	uint // number of move
+	}{
+		{
+			NewMinNodes(0x4E40), // top-left corner
+			0,
+		},{
+			NewMinNodes(0x2720), // top-right corner
+			1,
+		},{
+			NewMinNodes(0x04E4), // bottom-left corner
+			2,
+		},{
+			NewMinNodes(0x0272), // bottom-right corner
+			3,
+		},
+	}
+	crossTopLeft := MinNodes(0x4E40)
+
+	for _, tc := range testCases {
+		result := tc.mn.MoveTopLeft(tc.move)
+		if result != crossTopLeft {
+			t.Errorf("fait to do %d move. 0x%X != 0x%X", tc.move, result, crossTopLeft)
+		}
+	}
 }
