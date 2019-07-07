@@ -58,3 +58,26 @@ func TestMinNodes_MoveTopLeft(t *testing.T) {
 		}
 	}
 }
+
+func TestMinNodes_ApplyGoFRuleToTopLeft(t *testing.T) {
+	testCases := []struct{
+		mn 			*MinNodes // initial MinNode
+		expected	bool
+	}{
+		{
+			NewMinNodes(0x4E40),
+			false,
+		},{
+			NewMinNodes(0x4E4F),
+			false,
+		},
+	}
+
+	for _, tc := range testCases {
+		result := tc.mn.ApplyGoFRuleToTopLeft()
+		if result != tc.expected {
+			t.Errorf("ApplyGoFRuleToTopLeft to %X fail. " +
+				"Got %v. Expected %v", tc.mn, result, tc.expected)
+		}
+	}
+}
