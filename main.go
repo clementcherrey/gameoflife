@@ -14,7 +14,7 @@ import "encoding/binary"
 type MinNodes uint16
 
 // NewMinNodes creates a MinNodes pointer
-func NewMinNodes(u uint16) *MinNodes{
+func NewMinNodes(u uint16) *MinNodes {
 	mn := MinNodes(u)
 	return &mn
 }
@@ -25,8 +25,8 @@ func (mn *MinNodes) SetBit(pos uint) {
 }
 
 // Similar to SetBit but for a single byte
-func setBit(b byte, pos uint) {
-	b |= 1 << pos
+func setBit(b *byte, pos uint) {
+	*b |= 1 << pos
 }
 
 // Clears the bit at pos in MinNodes
@@ -37,7 +37,7 @@ func (mn *MinNodes) UnSetBit(pos uint) {
 // GetBit returns the value of bit i of byte b.
 // The bit index must be between 0 and 7.
 func (mn *MinNodes) GetBit(pos uint) bool {
-	return *mn&(1 << pos) != 0
+	return *mn&(1<<pos) != 0
 }
 
 // o o a o      o a o o
@@ -61,22 +61,21 @@ func (mn *MinNodes) MoveTopLeft(crossPos uint) MinNodes {
 	return *mn << crossPos
 }
 
-// TODO: test
+// TODO: finish test
 // TODO: create a separate type for result?
 func (mn *MinNodes) ApplyGoFRule() byte {
 	var result byte // we only care about the last 4 bits
 	for _, i := range []uint{0, 1, 2, 3} {
 		if mn.MoveTopLeft(i).ApplyGoFRuleToTopLeft() {
-			setBit(result, i) // TODO: set using opposite order?
+			setBit(&result, 3-i) // TODO: set using opposite order?
 		}
 	}
 	return result
 }
 
 // TODO: describe
-// TODO: test
 func (mn MinNodes) ApplyGoFRuleToTopLeft() bool {
-	surroundingCoordinates := []MinCoordinate {
+	surroundingCoordinates := []MinCoordinate{
 		{1, 0},
 		{0, 1},
 		{2, 1},
@@ -89,7 +88,7 @@ func (mn MinNodes) ApplyGoFRuleToTopLeft() bool {
 		}
 	}
 
-	isAlive := mn.GetBit(rawCoordToPos(1,1))
+	isAlive := mn.GetBit(rawCoordToPos(1, 1))
 
 	if isAlive && cnt > 1 && cnt < 4 {
 		return true
@@ -111,7 +110,7 @@ func (mn *MinNodes) getInnerCrosses() []uint16 {
 	masks := []uint16{0x4E40} // TODO: add 3 more masks
 
 	crosses := make([]uint16, 0, 4)
-	for _, mask := range masks{
+	for _, mask := range masks {
 		crosses = append(crosses, uint16(*mn)&mask)
 	}
 	return crosses
